@@ -2,4 +2,4 @@
 - name: Install PowerDNS
   hosts: powerdns
   roles:
-    - PowerDNS.pdns
+    - powerdns.pdns
