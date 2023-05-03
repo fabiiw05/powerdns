@@ -1,3 +1,6 @@
 ---
-- src: powerdns.pdns
-  version: 1.7.0
+roles:
+  # Install a role from Ansible Galaxy.
+  - name: powerdns.pdns
+    version: 1.7.0
+
