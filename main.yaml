@@ -1,0 +1,5 @@
+---
+- name: Install PowerDNS
+  hosts: powerdns
+  roles:
+    - PowerDNS.pdns
