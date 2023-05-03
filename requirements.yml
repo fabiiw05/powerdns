@@ -1,5 +1,5 @@
 ---
-roles:
+collections:
   # Install a role from Ansible Galaxy.
   - name: powerdns.pdns
     version: 1.7.0
