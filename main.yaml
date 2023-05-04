@@ -2,11 +2,14 @@
 - name: Install PowerDNS
   hosts: powerdns
   pre_tasks:
+    - name: update
+
     - name: Install mariadb
-      ansible.builtin.package:
+      ansible.builtin.apt:
         name: 
          - mariadb-server
          - mariadb-client
         state: present
+        update_cache: yes
   roles:
     - { role: powerdns.pdns }
