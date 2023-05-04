@@ -1,13 +1,15 @@
 ---
 - name: Install PowerDNS
   hosts: powerdns
+  vars:
+    pdns_mysql_packages:
+      - mariadb-server
+      - mariadb-client
+      - python-mysqldb
+      - python3-mysqldb
   pre_tasks:
-    - name: Install mariadb
+    - name: apt-get update
       ansible.builtin.apt:
-        pkg: 
-         - mariadb-server
-         - mariadb-client
-        state: present
         update_cache: yes
   roles:
     - { role: powerdns.pdns }
