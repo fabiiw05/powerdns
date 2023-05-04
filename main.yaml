@@ -20,6 +20,9 @@
         login_password: "{{ powerdns_mysql_root_password }}"
         filter: version
 
+    - debug:
+       var: file_ck
+
     - name: Change the authentication plugin of MySQL root user to mysql_native_password
       when: file_ck.rc != 0
       shell: mysql -u root -e 'UPDATE mysql.user SET plugin="mysql_native_password" WHERE user="root" AND host="localhost"'
