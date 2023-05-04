@@ -12,5 +12,4 @@
       pdns_mysql_packages:
         - mariadb-server
         - mariadb-client
-        - python-mysqldb
         - python3-mysqldb
