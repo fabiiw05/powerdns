@@ -3,13 +3,23 @@
   hosts: powerdns
 
   pre_tasks:
+
     - name: apt-get update
       ansible.builtin.apt:
+        name: mariadb-server
         update_cache: yes
+
+    - name: Set mariadb root Password
+      mysql_user:
+        login_host: 'localhost'
+        login_user: 'root'
+        login_password: ''
+        name: 'root'
+        password: '{{ powerdns_mysql_root_password }}'
+        state: present 
 
   roles:
     - role: powerdns.pdns
       pdns_mysql_packages:
-        - mariadb-server
         - mariadb-client
         - python3-mysqldb
