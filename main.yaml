@@ -1,5 +1,10 @@
 ---
 - name: Install PowerDNS
   hosts: powerdns
+  tasks:
+    - name: Install mariadb
+      ansible.builtin.package:
+        name: mariadb
+        state: present
   roles:
     - { role: powerdns.pdns }
