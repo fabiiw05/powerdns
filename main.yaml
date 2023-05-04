@@ -17,11 +17,9 @@
       register: file_ck
       community.mysql.mysql_info:
         login_user: root
-        login_password: "{{ powerdns_mysql_root_password }}"
+        login_password: "testpass"
+        # login_password: "{{ powerdns_mysql_root_password }}"
         filter: version
-
-    - debug:
-       var: file_ck
 
     - name: Change the authentication plugin of MySQL root user to mysql_native_password
       when: file_ck.failed is true
