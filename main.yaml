@@ -1,7 +1,7 @@
 ---
 - name: Install PowerDNS
   hosts: powerdns
-  tasks:
+  pre_tasks:
     - name: Install mariadb
       ansible.builtin.package:
         name: mariadb
