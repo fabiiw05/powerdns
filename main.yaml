@@ -9,40 +9,41 @@
         pkg:
           - mariadb-server
           - python3-mysqldb
-          - mariadb-client
         update_cache: yes
 
-    - name: Get MySQL version with non-default credentials
+    - name: Check login MariaDB
       failed_when: false
       register: file_ck
       community.mysql.mysql_info:
         login_user: root
-        login_password: "testpass"
-        # login_password: "{{ powerdns_mysql_root_password }}"
+        login_password: "{{ powerdns_mysql_root_password }}"
         filter: version
 
-    - name: Change the authentication plugin of MySQL root user to mysql_native_password
-      when: file_ck.failed is true
-      shell: mysql -u root -e 'UPDATE mysql.user SET plugin="mysql_native_password" WHERE user="root" AND host="localhost"'
+    - name: Set DB Password
+      block:
+        - name: Change the authentication plugin of MySQL root user to mysql_native_password
+          shell: mysql -u root -e 'UPDATE mysql.user 
+                 SET plugin="mysql_native_password" 
+                 WHERE user="root" 
+                 AND host="localhost"'
 
-    - name: Flush Privileges
-      when: file_ck.failed is true
-      shell: mysql -u root -e 'FLUSH PRIVILEGES'
+        - name: Flush Privileges
+          shell: mysql -u root -e 'FLUSH PRIVILEGES'
 
-    - name: Set mariadb root Password
-      when: file_ck.rc is true
-      mysql_user:
-        login_host: 'localhost'
-        login_user: 'root'
-        login_password: ''
-        name: 'root'
-        password: '{{ powerdns_mysql_root_password }}'
-        state: present 
+        - name: Set mariadb root Password
+          mysql_user:
+            login_host: 'localhost'
+            login_user: 'root'
+            login_password: ''
+            name: 'root'
+            password: '{{ powerdns_mysql_root_password }}'
+            state: present 
+
+      when: file_ck.version is not defined
 
   roles:
     - role: powerdns.pdns
       pdns_user: "root"
       pdns_group: "root"
       pdns_mysql_packages:
-        - mariadb-client
-        - python3-mysqldb
+       - mariadb-client
