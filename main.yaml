@@ -2,8 +2,6 @@
 - name: Install PowerDNS
   hosts: powerdns
   pre_tasks:
-    - name: update
-
     - name: Install mariadb
       ansible.builtin.apt:
         pkg: 
