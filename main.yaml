@@ -4,7 +4,9 @@
   pre_tasks:
     - name: Install mariadb
       ansible.builtin.package:
-        name: mariadb
+        name: 
+         - mariadb-server
+         - mariadb-client
         state: present
   roles:
     - { role: powerdns.pdns }
