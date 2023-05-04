@@ -11,6 +11,10 @@
           - python3-mysqldb
         update_cache: yes
 
+    - debug:
+       var: ansible_user_id
+      become: false
+
     - name: Check login MariaDB
       failed_when: false
       register: file_ck
