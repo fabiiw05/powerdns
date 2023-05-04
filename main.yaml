@@ -9,9 +9,8 @@
 
   roles:
     - role: powerdns.pdns
-      vars:
-        pdns_mysql_packages:
-          - mariadb-server
-          - mariadb-client
-          - python-mysqldb
-          - python3-mysqldb
+      pdns_mysql_packages:
+        - mariadb-server
+        - mariadb-client
+        - python-mysqldb
+        - python3-mysqldb
