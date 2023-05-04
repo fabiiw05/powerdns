@@ -6,7 +6,7 @@
 
     - name: Install mariadb
       ansible.builtin.apt:
-        name: 
+        pkg: 
          - mariadb-server
          - mariadb-client
         state: present
