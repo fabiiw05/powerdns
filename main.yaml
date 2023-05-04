@@ -29,6 +29,8 @@
 
   roles:
     - role: powerdns.pdns
+      pdns_user: "root"
+      pdns_group: "root"
       pdns_mysql_packages:
         - mariadb-client
         - python3-mysqldb
