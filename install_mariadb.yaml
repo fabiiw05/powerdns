@@ -4,6 +4,7 @@
     pkg:
       - mariadb-server
       - python3-mysqldb
+      - python3-virtualenv
     update_cache: yes
 
 - name: uncomment a line bind-address = 127.0.0.1
