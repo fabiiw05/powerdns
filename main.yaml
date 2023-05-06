@@ -3,52 +3,63 @@
   hosts: powerdns
 
   pre_tasks:
-
-    - name: apt-get update
-      ansible.builtin.apt:
-        pkg:
-          - mariadb-server
-          - python3-mysqldb
-        update_cache: yes
-
-    - debug:
-       var: ansible_user_id
-      become: false
-
-    - name: Check login MariaDB
-      failed_when: false
-      register: file_ck
-      become: false
-      community.mysql.mysql_info:
-        login_user: root
-        login_password: "{{ powerdns_mysql_root_password }}"
-        filter: version
-
-    - name: Set DB Password
-      block:
-        - name: Change the authentication plugin of MySQL root user to mysql_native_password
-          shell: mysql -u root -e 'UPDATE mysql.user 
-                 SET plugin="mysql_native_password" 
-                 WHERE user="root" 
-                 AND host="localhost"'
-
-        - name: Flush Privileges
-          shell: mysql -u root -e 'FLUSH PRIVILEGES'
-
-        - name: Set mariadb root Password
-          mysql_user:
-            login_host: 'localhost'
-            login_user: 'root'
-            login_password: ''
-            name: 'root'
-            password: '{{ powerdns_mysql_root_password }}'
-            state: present 
-
-      when: file_ck.version is not defined
+    - import_tasks: install_mariadb.yaml
 
   roles:
-    - role: powerdns.pdns
-      pdns_user: "root"
-      pdns_group: "root"
-      pdns_mysql_packages:
-       - mariadb-client
+    - { role: powerdns.pdns , pdns_mysql_packages: [mariadb-client] }
+    - { role: powerdns.pdns_recursor }
+    - { role: geerlingguy.docker }
+
+  post_tasks:
+    - name: Install multi python packages with version specifiers
+      ansible.builtin.pip:
+        virtualenv: /opt/powerdns
+        virtualenv_python: python3
+        name:
+          - requests==2.29.0
+          - docker
+          - docker-compose
+
+    - name: PowerDNS-Admin
+      vars:
+        ansible_python_interpreter: /opt/powerdns/bin/python
+      community.docker.docker_compose:
+        project_name: powerdns-admin
+        definition:
+          version: "3"
+          services:
+            app:
+              restart: always
+              extra_hosts:
+                - powerdns:host-gateway
+              image: powerdnsadmin/pda-legacy:latest
+              container_name: powerdns_admin
+              ports:
+                - "9191:80"
+              logging:
+                driver: json-file
+                options:
+                  max-size: 50m
+              environment:
+                - "SQLALCHEMY_DATABASE_URI=mysql://pdnsadminuser:{{ powerdns_admin_db_password }}@powerdns/powerdnsadmin"
+                - "GUNICORN_TIMEOUT=60"
+                - "GUNICORN_WORKERS=2"
+                - "GUNICORN_LOGLEVEL=DEBUG"
+
+    - name: Run several insert queries against db test_db in single transaction
+      community.mysql.mysql_query:
+        login_db: powerdnsadmin
+        login_user: root
+        login_password: "{{ powerdns_mysql_root_password }}"
+        single_transaction: true
+        query:
+          -  INSERT IGNORE INTO `setting` 
+            VALUES 
+            (47,'pdns_api_url','http://powerdns:8081'),
+            (48,'pdns_api_key', '{{ powerdns_api_key }}'),
+            (49,'pdns_version','4.1.1');
+
+          - INSERT IGNORE INTO `user` 
+            VALUES 
+            (1,'admin','{{ '%s' | format(powerdns_admin_db_password) | password_hash('bcrypt') }}','','','',NULL,1,0);
+
