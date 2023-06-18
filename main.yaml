@@ -46,6 +46,12 @@
                 - "GUNICORN_WORKERS=2"
                 - "GUNICORN_LOGLEVEL=DEBUG"
 
+    - name: Wait for port 9191 to become open on the host,
+      ansible.builtin.wait_for:
+        port: 9191
+        timeout: 300
+        delay: 10
+
     - name: Run several insert queries against db test_db in single transaction
       community.mysql.mysql_query:
         login_db: powerdnsadmin
